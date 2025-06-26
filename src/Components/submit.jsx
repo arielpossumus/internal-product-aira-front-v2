@@ -1,17 +1,30 @@
 import { Box, TextField, Button, Typography, Chip, useTheme, useMediaQuery, IconButton } from '@mui/material'
 import MicIcon from '@mui/icons-material/Mic';
 import MicOffIcon from '@mui/icons-material/MicOff';
-import { useQuery } from '@tanstack/react-query'
-import questionsService from '../services/questionsService'
 import { APP_API_ADMIN_CONFIG } from '../Config/constants';
 import { useState, useEffect, useCallback } from 'react';
 
-export default function Submit({ input, setInput, handleSubmit, onSendMessage, showWelcome, placeHolderQuestion, setPlaceHolderQuestion, initialMessage, sendText, configImages, disableSubmit }) {
+export default function Submit({ input, setInput, handleSubmit, onSendMessage, showWelcome, placeHolderQuestion, initialMessage, sendText, configImages, disableSubmit, predefinedQuestions }) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [isListening, setIsListening] = useState(false);
   const [recognition, setRecognition] = useState(null);
+  const [randomQuestions, setRandomQuestions] = useState([]);
 
+  // Función para seleccionar 4 preguntas aleatorias
+  const getRandomQuestions = useCallback((questions, count = 4) => {
+    if (!questions || questions.length === 0) return [];
+    
+    const shuffled = [...questions].sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, Math.min(count, questions.length));
+  }, []);
+
+  // Efecto para actualizar las preguntas aleatorias cuando cambien las predefinedQuestions
+  useEffect(() => {
+    if (predefinedQuestions && predefinedQuestions.length > 0) {
+      setRandomQuestions(getRandomQuestions(predefinedQuestions));
+    }
+  }, [predefinedQuestions, getRandomQuestions]);
 
   // Inicializar el reconocimiento de voz
   useEffect(() => {
@@ -68,16 +81,6 @@ export default function Submit({ input, setInput, handleSubmit, onSendMessage, s
       setIsListening(false);
     }
   }, [recognition, isListening]);
-
-  const { data: randomQuestions = [] } = useQuery({
-    queryKey: ['randomQuestions'],
-    queryFn: questionsService.predefinedQuestions,
-    onSuccess: (data) => {
-      if (data.length > 0) {
-        setPlaceHolderQuestion(data[0].question);
-      }
-    }
-  });
 
   const handleQuestionClick = (question) => {
     setInput(question);

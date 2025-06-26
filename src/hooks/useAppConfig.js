@@ -34,6 +34,7 @@ const DEFAULT_APP = {
  *   app: import('./useThemeConfig').AppConfig,
  *   messages: import('./useThemeConfig').MessagesConfig,
  *   images: import('./useThemeConfig').ImagesConfig,
+ *   predefinedQuestions: Array,
  *   isLoading: boolean,
  *   error: string|null
  * }}
@@ -76,6 +77,7 @@ export const useAppConfig = () => {
       ...(themeConfig?.messages || {})
     },
     images: processedImages,
+    predefinedQuestions: themeConfig?.predefinedQuestions || [],
     isLoading: loading,
     error
   };

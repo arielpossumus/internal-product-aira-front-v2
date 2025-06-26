@@ -1,4 +1,4 @@
-# Agentes Inteligentes - Interfaz de Chat V0.1.5
+# Agentes Inteligentes - Interfaz de Chat V0.2.0
 
 ## Changelog
 
@@ -23,6 +23,10 @@
 - Nuevo logo Aira
 - Seccion "Acerca de"
 - Se deshabilita boton "Enviar" mientras se genera la respuesta
+
+### V0.2.0
+- Las preguntas predefinidas se toman desde la configuracion del cliente (Strapi)
+- Se envia el cliente como dato a la api para obtener los prompts
 
 
 ## Descripción
