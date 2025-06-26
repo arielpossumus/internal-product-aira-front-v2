@@ -11,8 +11,13 @@ import Messages from '../Components/messages'
 import Submit from '../Components/submit'
 import { v4 as uuidv4 } from 'uuid';
 
+const getClientFromUrl = () => {
+  const path = window.location.pathname;
+  return path.split('/')[1]; // Obtiene el primer segmento después del /
+};
+
 function Home() {
-  const { app, messages: configMessages, isLoading: configLoading, images: configImages } = useAppConfig();
+  const { app, messages: configMessages, isLoading: configLoading, images: configImages, predefinedQuestions } = useAppConfig();
   const [messages, setMessages] = useState([])
   const [input, setInput] = useState('')
   const [chatHistory, setChatHistory] = useState([])
@@ -23,11 +28,12 @@ function Home() {
   const [isFirstMessage, setIsFirstMessage] = useState(true)
   const [mobileOpen, setMobileOpen] = useState(false)
   const [disableSubmit, setDisableSubmit] = useState(false)
+  const [client] = useState(() => getClientFromUrl());
 
   useEffect(() => {
     setSession_id(uuidv4());
   }, []);
-  console.log(disableSubmit)
+
   useEffect(() => {
     if (!configLoading) {
       if (isFirstMessage) {
@@ -41,7 +47,7 @@ function Home() {
   const { mutate: sendMessage, isPending: isLoading } = useMutation({
     mutationFn: apiService.sendMessage,
     onSuccess: (response) => {
-      const summary = response.reply.summary;
+      const summary = response.response;
       setMessages(prevMessages => [...prevMessages, { 
         text: summary, 
         isUser: false 
@@ -70,9 +76,32 @@ function Home() {
     setShowWelcome(false);
 
     sendMessage({ 
-      message: input, 
+      query: input, 
       session_id, 
-      userId: "123" 
+      user_id: "123",
+      strategy: "standard",
+      agent_type: "general",
+      max_tokens: 100,
+      temperature: 2,
+      client: client
+    });
+  };
+
+  const handleQuestionClick = (question) => {
+    setIsFirstMessage(false);
+    setMessages(prevMessages => [...prevMessages, { text: question, isUser: true }]);
+    setInput('');
+    setShowWelcome(false);
+
+    sendMessage({ 
+      query: question, 
+      session_id, 
+      user_id: "123",
+      strategy: "standard",
+      agent_type: "general",
+      max_tokens: 100,
+      temperature: 2,
+      client: client
     });
   };
 
@@ -192,11 +221,12 @@ function Home() {
             handleSubmit={handleSubmit}
             showWelcome={showWelcome} 
             placeHolderQuestion={placeHolderQuestion}
-            setPlaceHolderQuestion={setPlaceHolderQuestion}
             sendText={configMessages.sendText}
             initialMessage={configMessages.initialMessage}
             configImages={configImages.greetingAgent}
             disableSubmit={disableSubmit}
+            predefinedQuestions={predefinedQuestions}
+            onSendMessage={handleQuestionClick}
           />
         </Box>
       </Box>

@@ -101,6 +101,7 @@ export const useThemeConfig = () => {
                 alt: config.imagesConfig?.headerIframe?.alt || 'Header'
               }
             },
+            predefinedQuestions: config.predefined_questions || [],
             paletteConfig: config.paletteConfig,
             inputColorsConfig: config.inputColorsConfig,
             linkColorsConfig: config.linkColorsConfig,
